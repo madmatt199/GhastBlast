@@ -19,6 +19,7 @@ import net.minecraft.server.EntityLiving;
 
 //org.bukkit
 import org.bukkit.Location;
+import org.bukkit.command.CommandSender;
 import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.Player;
@@ -26,10 +27,13 @@ import org.bukkit.event.Event;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
+import org.bukkit.command.Command;
 
 //Permissions - [Nijikokun, The Yeti]
-//import com.nijiko.permissions.PermissionHandler;
-//import com.nijikokun.bukkit.Permissions.Permissions;
+import com.nijiko.permissions.PermissionHandler;
+import com.nijikokun.bukkit.Permissions.Permissions;
+import org.bukkit.plugin.Plugin;
+
 
 //Main class.
 public class GhastBlast extends JavaPlugin
@@ -37,10 +41,10 @@ public class GhastBlast extends JavaPlugin
 
 	//Debugging variables.
 	public static int debug = 0;
+	public static int deny_flag = 0;
 	Logger log = Logger.getLogger("Minecraft");
 	private GhastBlastPlayerListener playerListener = new GhastBlastPlayerListener(this);;
-	
-	//public static PermissionHandler permHandler;
+	public static PermissionHandler permHandler;
 	public static PluginManager pm;
 	
 	
@@ -50,7 +54,7 @@ public class GhastBlast extends JavaPlugin
 		super();
 	}
 	
-	/**
+	
 	//Setup for hooking into permissions - [Nijikokun, The Yeti]
 	private void setupPermissions() {
 		Plugin permissionsPlugin = this.getServer().getPluginManager().getPlugin("Permissions");
@@ -63,7 +67,7 @@ public class GhastBlast extends JavaPlugin
 	        }
 	    }
 	}
-	**/
+	
 
 	
 	/**
@@ -85,7 +89,68 @@ public class GhastBlast extends JavaPlugin
 	public void onDisable()
 	{
 		log.info("[GhastBlast v0.1.0] Disabled.");
-		pm.disablePlugin(this);
+		this.getServer().reload();
+	}
+	
+	/**
+	 * onCommand
+	 * 
+	 * Captures server commands (also player typed) and determines how to
+	 * process the arguments.
+	 */
+	public boolean onCommand(CommandSender sender, Command command, String label, String[] args)
+	{
+		Player player = null;
+		String commandString = command.getName().toLowerCase();
+			
+		//Check if it was a player who typed the command.
+		if(sender instanceof Player){
+			player = (Player) sender;
+		}
+				
+		//Check if it was the right command.
+		if(commandString.equalsIgnoreCase("ghastblast"))
+		{
+			if(args.length == 1)
+			{
+				//Process sub-arguments based on permission.
+				if(player != null)
+				{
+					if(args[0].equalsIgnoreCase("help"))
+					{
+						player.sendMessage("Use glowstone dust to shoot fireballs!");
+					}
+					
+					if(permHandler.has(player, "ghastblast.admin"))
+					{
+						if(args[0].equalsIgnoreCase("allow"))
+						{
+							deny_flag = 0;
+							player.getServer().broadcastMessage("GhastBlast disabled.");
+						}
+						else if(args[0].equalsIgnoreCase("deny"))
+						{
+							deny_flag = 1;
+							player.getServer().broadcastMessage("GhastBlast enabled.");
+						}
+						else if(args[0].equalsIgnoreCase("disable"))
+						{
+							player.getServer().broadcastMessage("Disabling entire GhastBLast plugin.");
+							pm.disablePlugin(this);
+						}
+					}
+				}
+				else
+				{
+					sender.sendMessage("You are the server why are you asking.");
+				}
+			}
+			else
+			{
+				sender.sendMessage("usage: /ghastblast <help|allow|deny|disable>");
+			}
+		}
+		return true;
 	}
 
 	/**
@@ -96,16 +161,17 @@ public class GhastBlast extends JavaPlugin
 	 */
 	@Override
 	public void onEnable()
-	{
+	{		
 		//Get PluginManager.
 		pm = this.getServer().getPluginManager();
+		setupPermissions();
 		
 		//Register events.
 		pm.registerEvent(Event.Type.PLAYER_INTERACT, playerListener, Event.Priority.Normal, this);
 		
 		//Log enabled status.
 		log.info("[GhastBlast v0.1.0] enabled.");
-	}
+	}	
 	
 	/**
 	 * launchFireball
@@ -119,7 +185,7 @@ public class GhastBlast extends JavaPlugin
 		CraftPlayer craftPlayer = (CraftPlayer) player;
 		EntityLiving playerEntity = craftPlayer.getHandle();
 		
-		//Define directon of fireball. Multiplying by 10 gives better accuracy. 
+		//Define direction of fireball. Multiplying by 10 gives better accuracy. 
 		Vector lookat = player.getLocation().getDirection().multiply(10);
 		
 		//Define location of the player.
@@ -139,6 +205,9 @@ public class GhastBlast extends JavaPlugin
 		fball.locY = loc.getY() + (player.getEyeHeight()/2.0) + 0.5;
 		fball.locZ = loc.getZ() + (lookat.getZ()/5.0);
 		
-		((CraftWorld) player.getWorld()).getHandle().addEntity(fball);
+		if(deny_flag == 0)
+		{
+			((CraftWorld) player.getWorld()).getHandle().addEntity(fball);
+		}
 	}
 }

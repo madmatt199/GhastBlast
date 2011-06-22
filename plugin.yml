@@ -6,3 +6,4 @@ commands:
     ghastblast:
         description: Display basic /ghastblast help.
         usage: Use glowstone dust to fire a fireball!
+        permissions: ghastblast.admin
