@@ -1,0 +1,8 @@
+name: GhastBlast
+author: Matthew Uecker
+main: com.mattuecker.GhastBlast.GhastBlast
+version: 0.1.0
+commands:
+    ghastblast:
+        description: Display basic /ghastblast help.
+        usage: Use glowstone dust to fire a fireball!
