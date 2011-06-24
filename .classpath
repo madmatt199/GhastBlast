@@ -2,8 +2,8 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="C:/Users/Matt/Dropbox/Minecraft-Files/MyPlugins/bukkit-0.0.1-SNAPSHOT.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Matt/Dropbox/Minecraft-Files/MyPlugins/craftbukkit-0.0.1-SNAPSHOT.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Matt/Dropbox/Minecraft-Files/MyPlugins/Permissions.jar"/>
+	<classpathentry kind="lib" path="/home/muecker/Minecraft/PluginDev/bukkit-0.0.1-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="/home/muecker/Minecraft/PluginDev/craftbukkit-0.0.1-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="/home/muecker/Minecraft/PluginDev/Permissions.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

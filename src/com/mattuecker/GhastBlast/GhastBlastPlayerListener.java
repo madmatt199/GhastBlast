@@ -7,7 +7,7 @@
  * what to do when the events happen and what to call in GhastBlast.java
  * if certain requirements are met.
  * 
- * GhastBlast v0.1.0
+ * GhastBlast v0.2.0
  */
 
 package com.mattuecker.GhastBlast;

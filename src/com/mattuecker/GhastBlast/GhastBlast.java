@@ -7,7 +7,7 @@
  * determine if the PLAYER is holding GLOWSTONE_DUST and "uses" it. Then fire a
  * ghast bomb in the direction of the crosshairs.
  * 
- * GhastBlast v0.1.0
+ * GhastBlast v0.2.0
  */
 
 package com.mattuecker.GhastBlast;
@@ -77,7 +77,7 @@ public class GhastBlast extends JavaPlugin
 	 */
 	public void onLoad()
 	{
-		log.info("[GhastBlast v0.1.0] Loading...");
+		log.info("[GhastBlast v0.2.0] Loading...");
 	}
 
 	/**
@@ -88,7 +88,7 @@ public class GhastBlast extends JavaPlugin
 	@Override
 	public void onDisable()
 	{
-		log.info("[GhastBlast v0.1.0] Disabled.");
+		log.info("[GhastBlast v0.2.0] Disabled.");
 		this.getServer().reload();
 	}
 	
@@ -126,12 +126,12 @@ public class GhastBlast extends JavaPlugin
 						if(args[0].equalsIgnoreCase("allow"))
 						{
 							deny_flag = 0;
-							player.getServer().broadcastMessage("GhastBlast disabled.");
+							player.getServer().broadcastMessage("GhastBlast enabled.");
 						}
 						else if(args[0].equalsIgnoreCase("deny"))
 						{
 							deny_flag = 1;
-							player.getServer().broadcastMessage("GhastBlast enabled.");
+							player.getServer().broadcastMessage("GhastBlast disabled.");
 						}
 						else if(args[0].equalsIgnoreCase("disable"))
 						{
@@ -142,7 +142,25 @@ public class GhastBlast extends JavaPlugin
 				}
 				else
 				{
-					sender.sendMessage("You are the server why are you asking.");
+					if(args[0].equalsIgnoreCase("help"))
+					{
+						sender.sendMessage("Use glowstone dust to shoot fireballs!");
+					}
+					else if(args[0].equalsIgnoreCase("allow"))
+					{
+						deny_flag = 0;
+						sender.sendMessage("GhastBlast enabled.");
+					}
+					else if(args[0].equalsIgnoreCase("deny"))
+					{
+						deny_flag = 1;
+						sender.sendMessage("GhastBlast disabled.");
+					}
+					else if(args[0].equalsIgnoreCase("disable"))
+					{
+						sender.sendMessage("Disabling entire GhastBLast plugin.");
+						pm.disablePlugin(this);
+					}
 				}
 			}
 			else
@@ -165,12 +183,12 @@ public class GhastBlast extends JavaPlugin
 		//Get PluginManager.
 		pm = this.getServer().getPluginManager();
 		setupPermissions();
-		
+
 		//Register events.
 		pm.registerEvent(Event.Type.PLAYER_INTERACT, playerListener, Event.Priority.Normal, this);
 		
 		//Log enabled status.
-		log.info("[GhastBlast v0.1.0] enabled.");
+		log.info("[GhastBlast v0.2.0] enabled.");
 	}	
 	
 	/**
@@ -200,12 +218,16 @@ public class GhastBlast extends JavaPlugin
 		
 		EntityFireball fball = new EntityFireball(((CraftWorld) player.getWorld()).getHandle(), playerEntity, lookat.getX(), lookat.getY(), lookat.getZ());
 		
-		//Make the firball spawn slightly out and away from the player.
+		//Make the fireball spawn slightly out and away from the player.
 		fball.locX = loc.getX() + (lookat.getX()/5.0) + 0.25;
 		fball.locY = loc.getY() + (player.getEyeHeight()/2.0) + 0.5;
 		fball.locZ = loc.getZ() + (lookat.getZ()/5.0);
 		
-		if(deny_flag == 0)
+		if(deny_flag == 0 && !permHandler.has(player, "ghastblast.admin"))
+		{
+			((CraftWorld) player.getWorld()).getHandle().addEntity(fball);
+		}
+		else if(permHandler.has(player, "ghastblast.admin"))
 		{
 			((CraftWorld) player.getWorld()).getHandle().addEntity(fball);
 		}
